@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch ShootingStarScouterPluginTest",
+      "type": "java",
+      "request": "launch",
+      "mainClass": "com.shootingstar.scouter.ShootingStarScouterPluginTest",
+      "projectName": "Shooting-Star-Scouter",
+      "vmArgs": "-ea",
+      "args": "--debug --developer-mode",
+      "preLaunchTask": "Gradle: testClasses"
+    }
+  ]
+}
