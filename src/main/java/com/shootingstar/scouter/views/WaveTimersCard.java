@@ -40,6 +40,7 @@ public class WaveTimersCard extends JPanel
         table.setShowGrid(true);
         table.getTableHeader().setFont(FontManager.getRunescapeBoldFont());
         table.getTableHeader().setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+        table.getTableHeader().setBackground(ColorScheme.DARK_GRAY_COLOR);
         
         // Create custom row sorter with comparator for spawn time column (index 1)
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);

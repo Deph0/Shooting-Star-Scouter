@@ -8,6 +8,7 @@ import com.shootingstar.scouter.views.CurrentStarsCard;
 import com.shootingstar.scouter.views.HeaderView;
 import com.shootingstar.scouter.views.SecondaryViewPanel;
 import com.shootingstar.scouter.views.WaveTimersCard;
+import com.shootingstar.scouter.websocket.WebSocketManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,6 +22,7 @@ public class ShootingStarPanel extends PluginPanel
 {
     private final HeaderView headerView;
     private final SecondaryViewPanel secondaryViewPanel;
+    private final JButton connectButton;
 
     public ShootingStarPanel(ShootingStarScouterConfig config)
     {
@@ -31,11 +33,8 @@ public class ShootingStarPanel extends PluginPanel
         JPanel titleBar = new JPanel(new BorderLayout());
         titleBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         
-        JButton connectButton = new JButton("Connect");
+        connectButton = new JButton("Connect");
         connectButton.setForeground(Color.GREEN);
-        ConnectButtonListener listener = new ConnectButtonListener(connectButton, config, this);
-        listener.initialize();
-        connectButton.addActionListener(listener);
         titleBar.add(connectButton, BorderLayout.EAST);
         
         JLabel title = new JLabel("<html>Shooting Star<br>Scouter</html>");
@@ -56,6 +55,16 @@ public class ShootingStarPanel extends PluginPanel
         // Secondary view (encapsulates toggle + cards)
         secondaryViewPanel = new SecondaryViewPanel();
         add(secondaryViewPanel, BorderLayout.CENTER);
+    }
+
+    /**
+     * Initialize WebSocket manager and connect button listener.
+     * Must be called after panel construction.
+     */
+    public void setWebSocketManager(WebSocketManager webSocketManager)
+    {
+        ConnectButtonListener listener = new ConnectButtonListener(connectButton, webSocketManager);
+        connectButton.addActionListener(listener);
     }
 
     // Delegate setters

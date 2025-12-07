@@ -15,6 +15,8 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 
+import com.shootingstar.scouter.websocket.WebSocketManager;
+
 import java.awt.image.BufferedImage;
 
 @Slf4j
@@ -34,6 +36,7 @@ public class ShootingStarScouterPlugin extends Plugin
 
 	private NavigationButton navButton;
 	private ShootingStarPanel panel;
+	private WebSocketManager webSocketManager;
 
 	@Override
 	protected void startUp() throws Exception
@@ -41,13 +44,14 @@ public class ShootingStarScouterPlugin extends Plugin
 		log.info("Shooting Star Scouter started!");
 
 		try {
-			// Create the side panel UI and navigation button
 			panel = new ShootingStarPanel(config);
+			webSocketManager = new WebSocketManager(config.websocketUrl(), panel);			
+			panel.setWebSocketManager(webSocketManager);
 
 			final BufferedImage navIcon = ImageUtil.loadImageResource(getClass(), "/shooting_star_icon.png");
 			int priority = config.navButtonPriority();
 			navButton = NavigationButton.builder()
-				.tooltip("S. Star Scouter") // Shooting Star Scouter
+				.tooltip("Shooting Star Scouter")
 				.icon(navIcon)
 				.panel(panel)
 				.priority(priority)
@@ -64,6 +68,11 @@ public class ShootingStarScouterPlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 		log.info("Shooting Star Scouter stopped!");
+
+		if (webSocketManager != null && webSocketManager.isConnected())
+		{
+			webSocketManager.disconnect();
+		}
 
 		if (clientToolbar != null && navButton != null)
 		{
