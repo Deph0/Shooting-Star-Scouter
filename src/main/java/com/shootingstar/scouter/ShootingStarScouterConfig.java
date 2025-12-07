@@ -26,4 +26,15 @@ public interface ShootingStarScouterConfig extends Config
 	{
 		return 6;
 	}
+
+	@ConfigItem(
+		keyName = "websocketUrl",
+		name = "WebSocket URL",
+		description = "The WebSocket server URL for star data updates"
+	)
+	default String websocketUrl()
+	{
+		return "wss://starhunt.texasmonstermap.com";
+		// return "ws://localhost:8080/stars";
+	}
 }

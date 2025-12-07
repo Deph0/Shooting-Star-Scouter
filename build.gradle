@@ -21,6 +21,8 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
+	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
 	testImplementation 'junit:junit:4.12'
 	testImplementation group: 'net.runelite', name:'client', version: runeLiteVersion
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
@@ -58,4 +60,25 @@ tasks.register('shadowJar', Jar) {
 	group = BasePlugin.BUILD_GROUP
 	archiveClassifier.set('shadow')
 	archiveFileName.set("${rootProject.name}-${project.version}-all.jar")
+}
+
+tasks.register('runPlugin', JavaExec) {
+	dependsOn testClasses
+	
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass.set('com.shootingstar.scouter.ShootingStarScouterPluginTest')
+	
+	jvmArgs = [
+		'-ea',
+		'--add-opens', 'java.desktop/sun.awt=ALL-UNNAMED',
+		'--add-opens', 'java.desktop/java.awt=ALL-UNNAMED',
+		'--add-opens', 'java.desktop/java.awt.event=ALL-UNNAMED',
+		'--add-opens', 'java.desktop/javax.swing=ALL-UNNAMED',
+		'--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED'
+	]
+	
+	args = ['--debug', '--developer-mode']
+	
+	group = 'application'
+	description = 'Runs the Shooting Star Scouter plugin in RuneLite'
 }

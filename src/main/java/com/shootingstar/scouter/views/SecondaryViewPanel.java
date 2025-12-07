@@ -1,5 +1,6 @@
 package com.shootingstar.scouter.views;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -9,16 +10,17 @@ public class SecondaryViewPanel extends JPanel
 {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
-    private final CurrentStarsView starsView;
-    private final WaveTimersView timersView;
+    private final CurrentStarsCard starsCard;
+    private final WaveTimersCard timersCard;
     private final JButton toggleButton;
     private boolean showingStars = true;
 
     public SecondaryViewPanel()
     {
         setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 
-        toggleButton = new JButton("Show: Current Stars");
+        toggleButton = new JButton("Show Spawn Timers");
 
         toggleButton.addActionListener(e -> toggleView());
         add(toggleButton, BorderLayout.NORTH);
@@ -26,11 +28,11 @@ public class SecondaryViewPanel extends JPanel
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        starsView = new CurrentStarsView();
-        timersView = new WaveTimersView();
+        starsCard = new CurrentStarsCard();
+        timersCard = new WaveTimersCard();
 
-        cardPanel.add(starsView, "STARS");
-        cardPanel.add(timersView, "TIMERS");
+        cardPanel.add(starsCard, "STARS");
+        cardPanel.add(timersCard, "TIMERS");
         cardLayout.show(cardPanel, "STARS");
 
         add(cardPanel, BorderLayout.CENTER);
@@ -42,22 +44,22 @@ public class SecondaryViewPanel extends JPanel
         if (showingStars)
         {
             cardLayout.show(cardPanel, "STARS");
-            toggleButton.setText("Show: Current Stars");
+            toggleButton.setText("Show Spawn Timers");
         }
         else
         {
             cardLayout.show(cardPanel, "TIMERS");
-            toggleButton.setText("Show: Wave Timers");
+            toggleButton.setText("Show Current Stars");
         }
     }
 
-    public CurrentStarsView getStarsView()
+    public CurrentStarsCard getStarsCard()
     {
-        return starsView;
+        return starsCard;
     }
 
-    public WaveTimersView getTimersView()
+    public WaveTimersCard getTimersCard()
     {
-        return timersView;
+        return timersCard;
     }
 }

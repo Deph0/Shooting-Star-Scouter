@@ -13,8 +13,9 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.util.ImageUtil;
+
 import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
 
 @Slf4j
 @PluginDescriptor(
@@ -33,28 +34,30 @@ public class ShootingStarScouterPlugin extends Plugin
 
 	private NavigationButton navButton;
 	private ShootingStarPanel panel;
-	private java.awt.image.BufferedImage navIcon;
 
 	@Override
 	protected void startUp() throws Exception
 	{
 		log.info("Shooting Star Scouter started!");
 
-		// Create the side panel UI and navigation button
-		panel = new ShootingStarPanel();
+		try {
+			// Create the side panel UI and navigation button
+			panel = new ShootingStarPanel(config);
 
-		// Create a small empty icon so the button has an icon in the toolbar.
-		navIcon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = navIcon.createGraphics();
-		g.dispose();
-		int priority = config.navButtonPriority();
-		navButton = NavigationButton.builder()
-			.tooltip("Shooting Star Scouter")
-			.icon(navIcon)
-			.panel(panel)
-			.priority(priority)
-			.build();
-		clientToolbar.addNavigation(navButton);
+			final BufferedImage navIcon = ImageUtil.loadImageResource(getClass(), "/shooting_star_icon.png");
+			int priority = config.navButtonPriority();
+			navButton = NavigationButton.builder()
+				.tooltip("S. Star Scouter") // Shooting Star Scouter
+				.icon(navIcon)
+				.panel(panel)
+				.priority(priority)
+				.build();
+			clientToolbar.addNavigation(navButton);
+			log.info("Shooting Star Scouter plugin loaded successfully!");
+		} catch (Exception ex) {
+			log.error("Failed to start Shooting Star Scouter plugin", ex);
+			throw ex;
+		}
 	}
 
 	@Override

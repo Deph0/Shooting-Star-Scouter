@@ -6,8 +6,8 @@
       "type": "java",
       "request": "launch",
       "mainClass": "com.shootingstar.scouter.ShootingStarScouterPluginTest",
-      "projectName": "Shooting-Star-Scouter",
-      "vmArgs": "-ea",
+      "projectName": "shooting-star-scouter",
+      "vmArgs": "-ea --add-opens java.desktop/sun.awt=ALL-UNNAMED --add-opens java.desktop/java.awt=ALL-UNNAMED --add-opens java.desktop/java.awt.event=ALL-UNNAMED --add-opens java.desktop/javax.swing=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED",
       "args": "--debug --developer-mode",
       "preLaunchTask": "Gradle: testClasses"
     }
