@@ -83,10 +83,10 @@ public class ShootingStarScouterPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
-		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "++ Shooting Star Scouter ++", null);
-		}
+		// if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
+		// {
+		// 	client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "++ Shooting Star Scouter ++", null);
+		// }
 	}
 
 	@Provides

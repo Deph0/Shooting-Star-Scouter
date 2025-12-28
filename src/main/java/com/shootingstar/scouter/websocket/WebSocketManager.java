@@ -22,6 +22,12 @@ public class WebSocketManager
     private final MessageDispatcher messageDispatcher;
     private Consumer<ConnectionState> stateChangeCallback;
 
+    public static final String MSG_TYPE_STAR_UPDATE = "STAR_UPDATE";
+    public static final String MSG_TYPE_STAR_SYNC = "STAR_SYNC";
+    public static final String MSG_TYPE_STAR_REMOVE = "STAR_REMOVE";
+    public static final String MSG_TYPE_SPAWN_TIMES = "SPAWN_TIMES";
+    public static final String MSG_TYPE_DASHBOARD_UPDATE = "DASHBOARD_UPDATE";
+
     public enum ConnectionState
     {
         DISCONNECTED,
@@ -70,9 +76,11 @@ public class WebSocketManager
 
         // Initialize message dispatcher with handlers
         this.messageDispatcher = new MessageDispatcher();
-        messageDispatcher.registerHandler("DASHBOARD_UPDATE", new DashboardUpdateHandler(panel));
-        messageDispatcher.registerHandler("STAR_SYNC", new StarSyncHandler(panel.getCurrentStarsView()));
-        messageDispatcher.registerHandler("SPAWN_TIMES", new SpawnTimesHandler(panel.getWaveTimersView()));
+        messageDispatcher.registerHandler(MSG_TYPE_DASHBOARD_UPDATE, new DashboardUpdateHandler(panel));
+        messageDispatcher.registerHandler(MSG_TYPE_STAR_SYNC, new StarSyncHandler(panel.getCurrentStarsView()));
+        messageDispatcher.registerHandler(MSG_TYPE_SPAWN_TIMES, new SpawnTimesHandler(panel.getWaveTimersView()));
+        // messageDispatcher.registerHandler(MSG_TYPE_STAR_UPDATE, null);
+        // messageDispatcher.registerHandler(MSG_TYPE_STAR_REMOVE, null);
     }
 
     /**

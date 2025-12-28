@@ -8,6 +8,9 @@ import javax.swing.JTable;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+
+import com.shootingstar.scouter.models.WorldSpawnTime;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 
@@ -78,19 +81,19 @@ public class WaveTimersCard extends JPanel
         // For backwards compatibility - not used with table
     }
     
-    public void updateTimers(java.util.List<WorldTimer> timers)
+    public void updateTimers(java.util.List<WorldSpawnTime> timers)
     {
         // Optimize updates by only modifying changed rows
         if (timers.size() == tableModel.getRowCount()) {
             boolean needsUpdate = false;
             for (int i = 0; i < timers.size(); i++) {
-            WorldTimer timer = timers.get(i);
+            WorldSpawnTime timer = timers.get(i);
             // Check if row data differs (need to check against sorted view)
             int modelRow = table.convertRowIndexToModel(i);
             String currentWorld = (String) tableModel.getValueAt(modelRow, 0);
             String currentTime = (String) tableModel.getValueAt(modelRow, 1);
             
-            if (!timer.world.equals(currentWorld) || !timer.spawnTime.equals(currentTime)) {
+            if (!timer.getWorld().equals(currentWorld) || !timer.getSpawnTime().equals(currentTime)) {
                 needsUpdate = true;
                 break;
             }
@@ -104,20 +107,10 @@ public class WaveTimersCard extends JPanel
         tableModel.setRowCount(0);
         
         // Add new rows
-        for (WorldTimer timer : timers) {
-            tableModel.addRow(new Object[]{timer.world, timer.spawnTime});
+        for (WorldSpawnTime timer : timers) {
+            tableModel.addRow(new Object[]{timer.getWorld(), timer.getSpawnTime()});
         }
     }
     
-    public static class WorldTimer
-    {
-        public final String world;
-        public final String spawnTime;
-        
-        public WorldTimer(String world, String spawnTime)
-        {
-            this.world = world;
-            this.spawnTime = spawnTime;
-        }
-    }
+    
 }

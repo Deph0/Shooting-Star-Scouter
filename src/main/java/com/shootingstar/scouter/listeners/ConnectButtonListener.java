@@ -47,6 +47,7 @@ public class ConnectButtonListener implements ActionListener
 
     private void onConnectionStateChanged(ConnectionState state)
     {
+        log.debug("Connection state changed to: {}", state.name());
         SwingUtilities.invokeLater(() -> {
             switch (state)
             {

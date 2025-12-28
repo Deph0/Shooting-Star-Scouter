@@ -35,6 +35,7 @@ public interface ShootingStarScouterConfig extends Config
 	default String websocketUrl()
 	{
 		return "wss://starhunt.texasmonstermap.com";
+		// return "wss://starhunt-ws-server.fly.dev";
 		// return "ws://localhost:8080/stars";
 	}
 }

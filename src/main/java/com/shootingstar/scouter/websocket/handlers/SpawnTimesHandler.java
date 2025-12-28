@@ -2,6 +2,7 @@ package com.shootingstar.scouter.websocket.handlers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.shootingstar.scouter.models.WorldSpawnTime;
 import com.shootingstar.scouter.views.WaveTimersCard;
 
 import javax.swing.SwingUtilities;
@@ -23,7 +24,7 @@ public class SpawnTimesHandler implements IMessageHandler
         // Extract the array from the wrapper if it exists
         JsonArray timers = data.has("data") ? data.getAsJsonArray("data") : data.getAsJsonArray();
         
-        List<WaveTimersCard.WorldTimer> timerList = new ArrayList<>();
+        List<WorldSpawnTime> timerList = new ArrayList<>();
         
         for (int i = 0; i < timers.size(); i++) {
             JsonObject timer = timers.get(i).getAsJsonObject();
@@ -43,7 +44,7 @@ public class SpawnTimesHandler implements IMessageHandler
                 avgSpawn = avgSpawn + " min";
             }
             
-            timerList.add(new WaveTimersCard.WorldTimer(world,  avgSpawn));
+            timerList.add(new WorldSpawnTime(world,  avgSpawn));
         }
 
         timerList.sort((a, b) -> a.world.compareToIgnoreCase(b.world));
