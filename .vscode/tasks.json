@@ -7,7 +7,12 @@
       "command": "${workspaceFolder}\\gradlew.bat",
       "args": [
         "build",
-        "--no-daemon"
+        "--stacktrace",
+        // "--info",
+        // "--debug",
+        
+        // "--scan",
+        // "--no-daemon"
       ],
       "presentation": {
         "echo": true,
@@ -24,7 +29,7 @@
       "command": "${workspaceFolder}\\gradlew.bat",
       "args": [
         "testClasses",
-        "--no-daemon"
+        // "--no-daemon"
       ],
       "dependsOn": "Gradle: build",
       "presentation": {

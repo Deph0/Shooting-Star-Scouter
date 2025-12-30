@@ -50,10 +50,10 @@ public class WebSocketManager
         // Initialize message dispatcher with handlers
         this.messageDispatcher = new MessageDispatcher();
         messageDispatcher.registerHandler(MSG_TYPE_DASHBOARD_UPDATE, new DashboardUpdateHandler(panel));
-        messageDispatcher.registerHandler(MSG_TYPE_STAR_SYNC, new StarSyncHandler(panel.getCurrentStarsView()));
         messageDispatcher.registerHandler(MSG_TYPE_SPAWN_TIMES, new SpawnTimesHandler(panel.getWaveTimersView()));
-        // messageDispatcher.registerHandler(MSG_TYPE_STAR_UPDATE, null);
-        // messageDispatcher.registerHandler(MSG_TYPE_STAR_REMOVE, null);
+        messageDispatcher.registerHandler(MSG_TYPE_STAR_SYNC, new StarSyncHandler(panel));
+        // messageDispatcher.registerHandler(MSG_TYPE_STAR_UPDATE, null); // Sending only
+        // messageDispatcher.registerHandler(MSG_TYPE_STAR_REMOVE, null); // Sending only
     }
 
     /**
@@ -73,7 +73,7 @@ public class WebSocketManager
     }
 
     /**
-     * Initiate WebSocket connection
+     * Initiate WebSocket connection asynchronously
      */
     public void connect()
     {
@@ -150,6 +150,47 @@ public class WebSocketManager
     {
         return webSocketClient != null && webSocketClient.isOpen();
     }
+
+    /**
+     * Send a message to the WebSocket server
+     * @param message The JSON message string to send
+     * @return true if sent successfully, false otherwise
+     */
+    public boolean sendMessage(String message)
+    {
+        if (!isConnected())
+        {
+            log.warn("Cannot send message - WebSocket is not connected");
+            return false;
+        }
+
+        try
+        {
+            webSocketClient.send(message);
+            log.debug("Sent message: {}", message);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            log.error("Failed to send message - closing connection", ex);
+            // Force close the connection since it's likely broken
+            if (webSocketClient != null)
+            {
+                try
+                {
+                    webSocketClient.close();
+                }
+                catch (Exception closeEx)
+                {
+                    log.error("Error closing broken connection", closeEx);
+                }
+                webSocketClient = null;
+            }
+            notifyStateChange(ConnectionState.ERROR);
+            return false;
+        }
+    }
+
 
     private void notifyStateChange(ConnectionState state)
     {
