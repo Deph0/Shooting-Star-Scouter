@@ -5,9 +5,15 @@ import com.shootingstar.scouter.websocket.handlers.DashboardUpdateHandler;
 import com.shootingstar.scouter.websocket.handlers.StarSyncHandler;
 import com.shootingstar.scouter.websocket.handlers.SpawnTimesHandler;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.framing.CloseFrame;
+import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -18,9 +24,10 @@ public class WebSocketManager
 {
     private static final Logger log = LoggerFactory.getLogger(WebSocketManager.class);
     
-    private final StarWebSocketHandler webSocketHandler;
+    private final String serverUrl;
+    private WebSocketClient webSocketClient;
     private final MessageDispatcher messageDispatcher;
-    private Consumer<ConnectionState> stateChangeCallback;
+    private final List<Consumer<ConnectionState>> stateChangeCallbacks = new ArrayList<>();
 
     public static final String MSG_TYPE_STAR_UPDATE = "STAR_UPDATE";
     public static final String MSG_TYPE_STAR_SYNC = "STAR_SYNC";
@@ -38,42 +45,8 @@ public class WebSocketManager
 
     public WebSocketManager(String serverUrl, ShootingStarPanel panel)
     {
-        // Create WebSocket handler with callbacks
-        this.webSocketHandler = new StarWebSocketHandler(serverUrl)
-        {
-            @Override
-            protected void onConnectionOpened()
-            {
-                log.info("WebSocket connection established");
-                notifyStateChange(ConnectionState.CONNECTED);
-            }
-
-            @Override
-            protected void handleMessage(String message)
-            {
-                messageDispatcher.dispatch(message);
-            }
-
-            @Override
-            protected void onConnectionClosed(int code, String reason, boolean remote)
-            {
-                log.info("WebSocket closed - Code: {}, Reason: {}, Remote: {}", code, reason, remote);
-                
-                if (code == 1000) { // Normal closure
-                    notifyStateChange(ConnectionState.DISCONNECTED);
-                } else {
-                    notifyStateChange(ConnectionState.ERROR);
-                }
-            }
-
-            @Override
-            protected void handleError(Exception ex)
-            {
-                log.error("WebSocket error occurred", ex);
-                notifyStateChange(ConnectionState.ERROR);
-            }
-        };
-
+        this.serverUrl = serverUrl;
+        
         // Initialize message dispatcher with handlers
         this.messageDispatcher = new MessageDispatcher();
         messageDispatcher.registerHandler(MSG_TYPE_DASHBOARD_UPDATE, new DashboardUpdateHandler(panel));
@@ -84,11 +57,19 @@ public class WebSocketManager
     }
 
     /**
-     * Set callback to be notified of connection state changes
+     * Add callback to be notified of connection state changes
      */
-    public void setStateChangeCallback(Consumer<ConnectionState> callback)
+    public void addStateChangeCallback(Consumer<ConnectionState> callback)
     {
-        this.stateChangeCallback = callback;
+        stateChangeCallbacks.add(callback);
+    }
+
+    /**
+     * Remove a previously registered state change callback
+     */
+    public void removeStateChangeCallback(Consumer<ConnectionState> callback)
+    {
+        stateChangeCallbacks.remove(callback);
     }
 
     /**
@@ -96,9 +77,56 @@ public class WebSocketManager
      */
     public void connect()
     {
-        log.info("Initiating WebSocket connection...");
-        notifyStateChange(ConnectionState.CONNECTING);
-        webSocketHandler.connect();
+        try
+        {
+            log.info("Connecting to WebSocket server at {}", serverUrl);
+            notifyStateChange(ConnectionState.CONNECTING);
+            
+            URI serverUri = new URI(serverUrl);
+            
+            webSocketClient = new WebSocketClient(serverUri)
+            {
+                @Override
+                public void onOpen(ServerHandshake handshakedata)
+                {
+                    log.debug("WebSocket connection established");
+                    notifyStateChange(ConnectionState.CONNECTED);
+                }
+
+                @Override
+                public void onMessage(String message)
+                {
+                    log.debug("Received WebSocket message: {}", message);
+                    messageDispatcher.dispatch(message);
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote)
+                {
+                    log.info("WebSocket closed - Code: {}, Reason: {}, Remote: {}", code, reason, remote);
+                    
+                    if (code == 1000) { // Normal closure
+                        notifyStateChange(ConnectionState.DISCONNECTED);
+                    } else {
+                        notifyStateChange(ConnectionState.ERROR);
+                    }
+                }
+
+                @Override
+                public void onError(Exception ex)
+                {
+                    log.error("WebSocket error occurred", ex);
+                    notifyStateChange(ConnectionState.ERROR);
+                }
+            };
+            
+            webSocketClient.connect();
+        }
+        catch (Exception ex)
+        {
+            log.error("Failed to connect to WebSocket", ex);
+            notifyStateChange(ConnectionState.ERROR);
+        }
     }
 
     /**
@@ -106,9 +134,13 @@ public class WebSocketManager
      */
     public void disconnect()
     {
-        log.info("Closing WebSocket connection...");
-        webSocketHandler.disconnect();
-        notifyStateChange(ConnectionState.DISCONNECTED);
+        if (webSocketClient != null && webSocketClient.isOpen())
+        {
+            log.info("Closing WebSocket connection...");
+            webSocketClient.close(CloseFrame.NORMAL, "Client disconnecting");
+            webSocketClient = null;
+            notifyStateChange(ConnectionState.DISCONNECTED);
+        }
     }
 
     /**
@@ -116,13 +148,13 @@ public class WebSocketManager
      */
     public boolean isConnected()
     {
-        return webSocketHandler.isConnected();
+        return webSocketClient != null && webSocketClient.isOpen();
     }
 
     private void notifyStateChange(ConnectionState state)
     {
-        if (stateChangeCallback != null) {
-            stateChangeCallback.accept(state);
+        for (Consumer<ConnectionState> callback : stateChangeCallbacks) {
+            callback.accept(state);
         }
     }
 }

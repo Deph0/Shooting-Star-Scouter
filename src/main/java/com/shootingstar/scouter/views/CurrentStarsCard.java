@@ -4,12 +4,15 @@ import net.runelite.client.ui.FontManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import lombok.Getter;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 
 public class CurrentStarsCard extends JPanel
 {
-    private final JLabel messageLabel;
+    @Getter private final JLabel messageLabel;
 
     public CurrentStarsCard()
     {
@@ -18,10 +21,5 @@ public class CurrentStarsCard extends JPanel
         messageLabel = new JLabel("No current stars.");
         messageLabel.setFont(FontManager.getRunescapeFont());
         add(messageLabel);
-    }
-
-    public void setMessage(String msg)
-    {
-        messageLabel.setText(msg);
     }
 }

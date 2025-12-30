@@ -1,17 +1,9 @@
 package com.shootingstar.scouter.models;
 
-import lombok.Getter;
+import lombok.Data;
 
-public class WorldSpawnTime
+public @Data class WorldSpawnTime
 {
-    @Getter
     public final String world;
-    @Getter
     public final String spawnTime;
-    
-    public WorldSpawnTime(String world, String spawnTime)
-    {
-        this.world = world;
-        this.spawnTime = spawnTime;
-    }
 }

@@ -3,6 +3,9 @@ package com.shootingstar.scouter.views;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import lombok.Getter;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
@@ -10,8 +13,8 @@ public class SecondaryViewPanel extends JPanel
 {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
-    private final CurrentStarsCard starsCard;
-    private final WaveTimersCard timersCard;
+    @Getter private final CurrentStarsCard starsCard;
+    @Getter private final WaveTimersCard timersCard;
     private final JButton toggleButton;
     private boolean showingStars = true;
 
@@ -22,7 +25,7 @@ public class SecondaryViewPanel extends JPanel
 
         toggleButton = new JButton("Show Spawn Timers");
 
-        toggleButton.addActionListener(e -> toggleView());
+        toggleButton.addActionListener(e -> toggleViewBtn());
         add(toggleButton, BorderLayout.NORTH);
 
         cardLayout = new CardLayout();
@@ -38,7 +41,7 @@ public class SecondaryViewPanel extends JPanel
         add(cardPanel, BorderLayout.CENTER);
     }
 
-    private void toggleView()
+    private void toggleViewBtn()
     {
         showingStars = !showingStars;
         if (showingStars)
@@ -51,15 +54,5 @@ public class SecondaryViewPanel extends JPanel
             cardLayout.show(cardPanel, "TIMERS");
             toggleButton.setText("Show Current Stars");
         }
-    }
-
-    public CurrentStarsCard getStarsCard()
-    {
-        return starsCard;
-    }
-
-    public WaveTimersCard getTimersCard()
-    {
-        return timersCard;
     }
 }

@@ -6,11 +6,20 @@ import com.shootingstar.scouter.models.WorldSpawnTime;
 import com.shootingstar.scouter.views.WaveTimersCard;
 
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SpawnTimesHandler implements IMessageHandler
 {
+    private static final Logger log = LoggerFactory.getLogger(SpawnTimesHandler.class);
     private final WaveTimersCard timersView;
 
     public SpawnTimesHandler(WaveTimersCard timersView)
@@ -19,7 +28,7 @@ public class SpawnTimesHandler implements IMessageHandler
     }
 
     @Override
-    public void handle(JsonObject data)
+    public void onData(JsonObject data)
     {
         // Extract the array from the wrapper if it exists
         JsonArray timers = data.has("data") ? data.getAsJsonArray("data") : data.getAsJsonArray();
@@ -49,6 +58,47 @@ public class SpawnTimesHandler implements IMessageHandler
 
         timerList.sort((a, b) -> a.world.compareToIgnoreCase(b.world));
         
-        SwingUtilities.invokeLater(() -> timersView.updateTimers(timerList));
+        SwingUtilities.invokeLater(() -> this.updateTimers(timerList));
+    }
+
+    private void updateTimers(List<WorldSpawnTime> timers)
+    {
+        // Build a map of world -> spawn time for quick lookup
+        Map<String, String> timerMap = new HashMap<>();
+        for (WorldSpawnTime timer : timers) {
+            timerMap.put(timer.getWorld(), timer.getSpawnTime());
+        }
+        
+        // Track which worlds we've seen
+        Set<String> processedWorlds = new HashSet<>();
+        
+        // Update existing rows and remove obsolete ones
+        for (int i = timersView.getTableModel().getRowCount() - 1; i >= 0; i--) {
+            String currentWorld = (String) timersView.getTableModel().getValueAt(i, 0);
+            
+            if (timerMap.containsKey(currentWorld)) {
+                String newTime = timerMap.get(currentWorld);
+                String currentTime = (String) timersView.getTableModel().getValueAt(i, 1);
+                
+                // Only update if the time changed
+                if (!newTime.equals(currentTime)) {
+                    log.debug("Updating spawn time for world {}: {} -> {}", currentWorld, currentTime, newTime);
+                    timersView.getTableModel().setValueAt(newTime, i, 1);
+                }
+                processedWorlds.add(currentWorld);
+            } else {
+                // World no longer exists, remove row
+                log.debug("Removing obsolete world from spawn times: {}", currentWorld);
+                timersView.getTableModel().removeRow(i);
+            }
+        }
+        
+        // Add new worlds that weren't in the table
+        for (WorldSpawnTime timer : timers) {
+            if (!processedWorlds.contains(timer.getWorld())) {
+                log.debug("Adding new world to spawn times: {} with time {}", timer.getWorld(), timer.getSpawnTime());
+                timersView.getTableModel().addRow(new Object[]{timer.getWorld(), timer.getSpawnTime()});
+            }
+        }
     }
 }

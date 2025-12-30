@@ -4,5 +4,5 @@ import com.google.gson.JsonObject;
 
 public interface IMessageHandler
 {
-    public void handle(JsonObject data);
+    public void onData(JsonObject data);
 }

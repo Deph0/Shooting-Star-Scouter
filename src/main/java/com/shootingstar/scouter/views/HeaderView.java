@@ -6,17 +6,19 @@ import net.runelite.client.ui.FontManager;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import lombok.Getter;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 
 public class HeaderView extends JPanel
 {
-    private final JLabel waveBeganLabel;
-    private final JLabel waveEndsLabel;
-    private final JLabel timeToScoutLabel;
-    private final JLabel spawnPhaseEndsLabel;
+    @Getter private final JLabel waveBeganLabel;
+    @Getter private final JLabel waveEndsLabel;
+    @Getter private final JLabel timeToScoutLabel;
+    @Getter private final JLabel spawnPhaseEndsLabel;
 
     public HeaderView()
     {
@@ -67,45 +69,4 @@ public class HeaderView extends JPanel
         return p;
     }
 
-    public void setCurrentWaveText(String text)
-    {
-        // Backwards compatibility: alias to waveBegan label
-        waveBeganLabel.setText(text);
-    }
-
-    public void setTimeToScoutText(String text)
-    {
-        timeToScoutLabel.setText(text);
-    }
-
-    public void setWaveEndText(String text)
-    {
-        // Backwards compatibility: alias to waveEnds label
-        waveEndsLabel.setText(text);
-    }
-
-    public void setWaveBeganText(String text)
-    {
-        waveBeganLabel.setText(text);
-    }
-
-    public void setWaveEndsText(String text)
-    {
-        waveEndsLabel.setText(text);
-    }
-
-    public void setSpawnPhaseEndsText(String text)
-    {
-        spawnPhaseEndsLabel.setText(text);
-    }
-
-    public void setTimeToScoutColor(Color color)
-    {
-        timeToScoutLabel.setForeground(color);
-    }
-
-    public void setSpawnPhaseColor(Color color)
-    {
-        spawnPhaseEndsLabel.setForeground(color);
-    }
 }

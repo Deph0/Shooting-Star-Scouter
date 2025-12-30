@@ -19,9 +19,9 @@ import java.awt.event.ActionListener;
  */
 public class ConnectButtonListener implements ActionListener
 {
+    private static final Logger log = LoggerFactory.getLogger(ConnectButtonListener.class);
     private final JButton connectButton;
     private final WebSocketManager webSocketManager;
-    private static final Logger log = LoggerFactory.getLogger(ConnectButtonListener.class);
 
     public ConnectButtonListener(JButton connectButton, WebSocketManager webSocketManager)
     {
@@ -29,7 +29,7 @@ public class ConnectButtonListener implements ActionListener
         this.webSocketManager = webSocketManager;
 
         // Register callback to update button state
-        webSocketManager.setStateChangeCallback(this::onConnectionStateChanged);
+        webSocketManager.addStateChangeCallback(this::onConnectionStateChanged);
     }
 
     @Override

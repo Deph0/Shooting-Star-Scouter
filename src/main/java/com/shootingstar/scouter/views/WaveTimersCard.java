@@ -5,19 +5,21 @@ import net.runelite.client.ui.FontManager;
 
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-import com.shootingstar.scouter.models.WorldSpawnTime;
+import lombok.Getter;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import java.util.Collections;
 
 public class WaveTimersCard extends JPanel
 {
     private final JTable table;
-    private final DefaultTableModel tableModel;
+    @Getter private final DefaultTableModel tableModel;
 
     public WaveTimersCard()
     {
@@ -47,27 +49,13 @@ public class WaveTimersCard extends JPanel
         
         // Create custom row sorter with comparator for spawn time column (index 1)
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
-        sorter.setComparator(1, (o1, o2) -> {
-            String s1 = (String) o1;
-            String s2 = (String) o2;
-            
-            // Handle "?" case, meaning no data available for that world
-            if (s1.equals("?") && s2.equals("?")) return 0;
-            if (s1.equals("?")) return 1; // Put "?" at the end
-            if (s2.equals("?")) return -1;
-            
-            // Parse time strings (e.g., "5 min" -> 5)
-            int time1 = Integer.parseInt(s1.replaceAll("\\D+", ""));
-            int time2 = Integer.parseInt(s2.replaceAll("\\D+", ""));
-            return Integer.compare(time1, time2);
-        });
+        sorter.setComparator(1, (a, b) -> compareSpawnTimes((String) a, (String) b));
         table.setRowSorter(sorter);
 
         // Set initial sorting by World column (index 0) in ascending order
-        sorter.setSortKeys(java.util.Collections.singletonList(
-            new javax.swing.RowSorter.SortKey(0, SortOrder.ASCENDING)));
+        sorter.setSortKeys(Collections.singletonList(
+            new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 
-        // Set column widths
         // Set column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(60);
         table.getColumnModel().getColumn(1).setPreferredWidth(90);
@@ -75,42 +63,53 @@ public class WaveTimersCard extends JPanel
         add(table.getTableHeader());
         add(table);
     }
-
-    public void setMessage(String msg)
+    
+    // Custom sorter logic for spawn times column
+    private int compareSpawnTimes(String a, String b)
     {
-        // For backwards compatibility - not used with table
+        // Handle "?" case, meaning no data available for that world
+        if (a.equals("?") && b.equals("?")) return 0; // Equal in terms of sorting
+        if (a.equals("?")) return 1; // a comes before b in the sorted order
+        if (b.equals("?")) return -1; // b comes before a in the sorted order
+        
+        // Parse time strings (e.g., "5 min" -> 5)
+        int time1 = Integer.parseInt(a.replaceAll("\\D+", ""));
+        int time2 = Integer.parseInt(b.replaceAll("\\D+", ""));
+        return Integer.compare(time1, time2);
     }
     
-    public void updateTimers(java.util.List<WorldSpawnTime> timers)
+    /*
+    // Moved to SpawnTimersHandler (this version updates all rows every time if changes detected)
+    public void updateTimers(List<WorldSpawnTime> timers)
     {
-        // Optimize updates by only modifying changed rows
+        // Check if any of the rows has changed; if not, skip update
         if (timers.size() == tableModel.getRowCount()) {
-            boolean needsUpdate = false;
-            for (int i = 0; i < timers.size(); i++) {
-            WorldSpawnTime timer = timers.get(i);
-            // Check if row data differs (need to check against sorted view)
-            int modelRow = table.convertRowIndexToModel(i);
-            String currentWorld = (String) tableModel.getValueAt(modelRow, 0);
-            String currentTime = (String) tableModel.getValueAt(modelRow, 1);
-            
-            if (!timer.getWorld().equals(currentWorld) || !timer.getSpawnTime().equals(currentTime)) {
-                needsUpdate = true;
-                break;
-            }
-            }
+            boolean needsUpdate = IntStream.range(0, timers.size())
+                .anyMatch(i -> {
+                    WorldSpawnTime timer = timers.get(i);
+                    int tableRowIdx = table.convertRowIndexToModel(i);
+                    String currentWorld = (String) tableModel.getValueAt(tableRowIdx, 0);
+                    String currentTime = (String) tableModel.getValueAt(tableRowIdx, 1);
+                    Boolean sameWorld = timer.getWorld().equals(currentWorld);
+                    Boolean sameTime = timer.getSpawnTime().equals(currentTime);
+                    log.debug("Comparing row {}: ({} vs {}) and ({} vs {}) => {}",
+                        i, timer.getWorld(), currentWorld,
+                        timer.getSpawnTime(), currentTime,
+                        sameWorld && sameTime ? "no change" : "changed");
+                    return !sameWorld || !sameTime;
+                });
             
             if (!needsUpdate) {
-            return; // No changes, skip update
+                return; // No changes, skip update
             }
         }
+
         // Clear existing rows
         tableModel.setRowCount(0);
         
-        // Add new rows
-        for (WorldSpawnTime timer : timers) {
-            tableModel.addRow(new Object[]{timer.getWorld(), timer.getSpawnTime()});
-        }
+        // Update with new rows
+        timers.forEach(timer -> tableModel.addRow(new Object[]{timer.getWorld(), timer.getSpawnTime()}));
     }
-    
+    */    
     
 }

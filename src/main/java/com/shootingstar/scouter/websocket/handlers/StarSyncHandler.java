@@ -16,7 +16,7 @@ public class StarSyncHandler implements IMessageHandler
     }
 
     @Override
-    public void handle(JsonObject data)
+    public void onData(JsonObject data)
     {
         // Extract the array from the wrapper if it exists
         JsonArray stars = data.has("data") ? data.getAsJsonArray("data") : data.getAsJsonArray();
@@ -35,6 +35,6 @@ public class StarSyncHandler implements IMessageHandler
         }
         starsList.append("</html>");
         String finalText = starsList.toString();
-        SwingUtilities.invokeLater(() -> starsView.setMessage(finalText));
+        SwingUtilities.invokeLater(() -> starsView.getMessageLabel().setText(finalText));
     }
 }

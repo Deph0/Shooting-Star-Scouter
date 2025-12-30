@@ -10,6 +10,8 @@ import com.shootingstar.scouter.views.SecondaryViewPanel;
 import com.shootingstar.scouter.views.WaveTimersCard;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 
+import lombok.Getter;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -20,7 +22,7 @@ import java.awt.Color;
 
 public class ShootingStarPanel extends PluginPanel
 {
-    private final HeaderView headerView;
+    @Getter private final HeaderView headerView;
     private final SecondaryViewPanel secondaryViewPanel;
     private final JButton connectButton;
 
@@ -65,27 +67,6 @@ public class ShootingStarPanel extends PluginPanel
     {
         ConnectButtonListener listener = new ConnectButtonListener(connectButton, webSocketManager);
         connectButton.addActionListener(listener);
-    }
-
-    // Delegate setters
-    public void setCurrentWaveTime(String text)
-    {
-        headerView.setCurrentWaveText(text);
-    }
-
-    public void setTimeToScout(String text)
-    {
-        headerView.setTimeToScoutText(text);
-    }
-
-    public void setWaveEndTime(String text)
-    {
-        headerView.setWaveEndText(text);
-    }
-
-    public HeaderView getHeaderView()
-    {
-        return headerView;
     }
 
     public CurrentStarsCard getCurrentStarsView()

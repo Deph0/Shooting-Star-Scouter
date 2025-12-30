@@ -44,12 +44,12 @@ public class MessageDispatcher
                 JsonElement data = json.get("data");
                 // Pass the data element directly (can be array or object)
                 if (data.isJsonObject()) {
-                    messageHandler.handle(data.getAsJsonObject());
+                    messageHandler.onData(data.getAsJsonObject());
                 } else if (data.isJsonArray()) {
                     // For arrays, wrap them in a temporary object
                     JsonObject wrapper = new JsonObject();
                     wrapper.add("data", data);
-                    messageHandler.handle(wrapper);
+                    messageHandler.onData(wrapper);
                 }
             }
         } catch (Exception ex) {
