@@ -77,39 +77,4 @@ public class WaveTimersCard extends JPanel
         int time2 = Integer.parseInt(b.replaceAll("\\D+", ""));
         return Integer.compare(time1, time2);
     }
-    
-    /*
-    // Moved to SpawnTimersHandler (this version updates all rows every time if changes detected)
-    public void updateTimers(List<WorldSpawnTime> timers)
-    {
-        // Check if any of the rows has changed; if not, skip update
-        if (timers.size() == tableModel.getRowCount()) {
-            boolean needsUpdate = IntStream.range(0, timers.size())
-                .anyMatch(i -> {
-                    WorldSpawnTime timer = timers.get(i);
-                    int tableRowIdx = table.convertRowIndexToModel(i);
-                    String currentWorld = (String) tableModel.getValueAt(tableRowIdx, 0);
-                    String currentTime = (String) tableModel.getValueAt(tableRowIdx, 1);
-                    Boolean sameWorld = timer.getWorld().equals(currentWorld);
-                    Boolean sameTime = timer.getSpawnTime().equals(currentTime);
-                    log.debug("Comparing row {}: ({} vs {}) and ({} vs {}) => {}",
-                        i, timer.getWorld(), currentWorld,
-                        timer.getSpawnTime(), currentTime,
-                        sameWorld && sameTime ? "no change" : "changed");
-                    return !sameWorld || !sameTime;
-                });
-            
-            if (!needsUpdate) {
-                return; // No changes, skip update
-            }
-        }
-
-        // Clear existing rows
-        tableModel.setRowCount(0);
-        
-        // Update with new rows
-        timers.forEach(timer -> tableModel.addRow(new Object[]{timer.getWorld(), timer.getSpawnTime()}));
-    }
-    */    
-    
 }
