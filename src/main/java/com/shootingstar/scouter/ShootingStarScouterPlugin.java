@@ -1,5 +1,6 @@
 package com.shootingstar.scouter;
 
+import com.google.inject.Injector;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
@@ -47,6 +48,9 @@ public class ShootingStarScouterPlugin extends Plugin
 	@Inject
 	private StarDataService starDataService;
 
+	@Inject
+	private Injector injector;
+
 	private NavigationButton navButton;
 	private ShootingStarPanel panel;
 	private WebSocketManager webSocketManager;
@@ -57,7 +61,7 @@ public class ShootingStarScouterPlugin extends Plugin
 		log.info("Shooting Star Scouter started!");
 
 		try {
-			panel = new ShootingStarPanel();
+			panel = new ShootingStarPanel(injector);
 			webSocketManager = new WebSocketManager(config.websocketUrl(), panel);			
 			panel.setWebSocketManager(webSocketManager);
 
@@ -176,11 +180,14 @@ public class ShootingStarScouterPlugin extends Plugin
 			String username = client.getLocalPlayer() != null ? client.getLocalPlayer().getName() : "Unknown";
 			String timestamp = Instant.now().toString();
 
-			String message = MessageBuilder.buildStarUpdate(world, tier, location, backup, username, timestamp);
+			StarData starData = new StarData(world, location, tier, backup, timestamp, username);
+			String message = MessageBuilder.buildStarUpdate(starData);
 			boolean success = webSocketManager.sendMessage(message);
 			
 			if (success)
 			{
+				starDataService.addOrUpdate(starData);
+				SwingUtilities.invokeLater(() -> panel.refreshStars());
 				client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", 
 					String.format("Star Scouter: Reported T%d star on W%s at %s%s", 
 						tier, world, location, backup ? " (backup)" : ""), null);

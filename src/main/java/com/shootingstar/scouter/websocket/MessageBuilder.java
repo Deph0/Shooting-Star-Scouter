@@ -1,6 +1,7 @@
 package com.shootingstar.scouter.websocket;
 
 import com.google.gson.JsonObject;
+import com.shootingstar.scouter.models.StarData;
 
 /**
  * Builds JSON messages for WebSocket communication.
@@ -8,6 +9,23 @@ import com.google.gson.JsonObject;
  */
 public class MessageBuilder
 {
+    /**
+     * Build a star update message from a StarData object
+     * @param starData The StarData object
+     * @return The JSON string message
+     */
+    public static String buildStarUpdate(StarData starData)
+    {
+        return buildStarUpdate(
+            starData.getWorld(),
+            starData.getTier(),
+            starData.getLocation(),
+            starData.isBackup(),
+            starData.getFoundBy(),
+            starData.getFirstFound()
+        );
+    }
+
     /**
      * Build a star update message
      * @param world The world number where the star was found

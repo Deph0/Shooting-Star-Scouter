@@ -6,7 +6,6 @@ import com.shootingstar.scouter.ShootingStarPanel;
 import com.shootingstar.scouter.models.StarData;
 import com.shootingstar.scouter.services.StarDataService;
 
-import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +14,12 @@ import java.util.Map;
 public class StarSyncHandler implements IMessageHandler
 {
     private final ShootingStarPanel panel;
-    @Inject private StarDataService starDataService;
+    private final StarDataService starDataService;
 
     public StarSyncHandler(ShootingStarPanel panel)
     {
         this.panel = panel;
+        this.starDataService = panel.getInjector().getInstance(StarDataService.class);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.shootingstar.scouter.listeners;
 
+import com.shootingstar.scouter.ShootingStarPanel;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 import com.shootingstar.scouter.websocket.WebSocketManager.ConnectionState;
 
@@ -22,10 +23,10 @@ public class ConnectButtonListener implements ActionListener
     private final JButton connectButton;
     private final WebSocketManager webSocketManager;
 
-    public ConnectButtonListener(JButton connectButton, WebSocketManager webSocketManager)
+    public ConnectButtonListener(ShootingStarPanel panel, JButton connectButton)
     {
         this.connectButton = connectButton;
-        this.webSocketManager = webSocketManager;
+        this.webSocketManager = panel.getWebSocketManager();
 
         // Register callback to update button state
         webSocketManager.addStateChangeCallback(this::onConnectionStateChanged);

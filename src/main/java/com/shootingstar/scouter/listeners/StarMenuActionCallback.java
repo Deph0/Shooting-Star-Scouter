@@ -2,6 +2,7 @@ package com.shootingstar.scouter.listeners;
 
 import javax.swing.JOptionPane;
 
+import com.google.inject.Injector;
 import com.shootingstar.scouter.ShootingStarPanel;
 import com.shootingstar.scouter.models.StarActionType;
 import com.shootingstar.scouter.models.StarData;
@@ -12,14 +13,14 @@ import com.shootingstar.scouter.websocket.WebSocketManager;
 public class StarMenuActionCallback
 {
     private final ShootingStarPanel panel;
+    private final Injector injector;
     private final WebSocketManager webSocketManager;
-    private final StarDataService starDataService;
 
-    public StarMenuActionCallback(ShootingStarPanel panel, WebSocketManager webSocketManager, StarDataService starDataService)
+    public StarMenuActionCallback(ShootingStarPanel panel)
     {
         this.panel = panel;
-        this.webSocketManager = webSocketManager;
-        this.starDataService = starDataService;
+        this.injector = panel.getInjector();
+        this.webSocketManager = panel.getWebSocketManager();
     }
 
     /**
@@ -27,6 +28,8 @@ public class StarMenuActionCallback
      */
     public void handleStarAction(String world, StarActionType action)
     {
+        StarDataService starDataService = injector.getInstance(StarDataService.class);
+        
         switch (action) {
             case REMOVE:
                 String removeMessage = MessageBuilder.buildStarRemove(world);
@@ -66,7 +69,7 @@ public class StarMenuActionCallback
                 break;
                 
             case EDIT:
-                showEditStarDialog(world, webSocketManager);
+                showEditStarDialog(world);
                 break;
         }
     }
@@ -74,7 +77,7 @@ public class StarMenuActionCallback
     /**
      * Show dialog to edit star details
      */
-    private void showEditStarDialog(String world, WebSocketManager webSocketManager)
+    private void showEditStarDialog(String world)
     {
         // TODO: Create a proper edit dialog with fields for world, tier, location, backup
         JOptionPane.showMessageDialog(panel,

@@ -1,5 +1,7 @@
 package com.shootingstar.scouter;
 
+import com.google.inject.Injector;
+import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 
@@ -15,7 +17,6 @@ import com.shootingstar.scouter.websocket.WebSocketManager;
 
 import lombok.Getter;
 
-import javax.inject.Inject;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -25,23 +26,33 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+
+
+
 public class ShootingStarPanel extends PluginPanel
 {
     @Getter private final HeaderView headerView;
     private final SecondaryViewPanel secondaryViewPanel;
     private final JButton connectButton;
-    @Inject private StarDataService starDataService;
+    private ShootingStarScouterConfig config;
+    private StarDataService starDataService;
+    @Getter private final Injector injector;
+	@Getter private WebSocketManager webSocketManager;
 
-    public ShootingStarPanel()
+    public ShootingStarPanel(Injector injector)
     {
-        setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(10, 10, 10, 10));
-
+        super(true);
+        this.injector = injector;
+        this.starDataService = injector.getInstance(StarDataService.class);
+        this.config = injector.getInstance(ShootingStarScouterConfig.class);
+        
         // Title bar with connect button on left and title on right
         JPanel titleBar = new JPanel(new BorderLayout());
         titleBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        titleBar.setBackground(ColorScheme.DARK_GRAY_COLOR);
         
         connectButton = new JButton("Connect");
+        connectButton.setFocusPainted(false);
         connectButton.setForeground(Color.GREEN);
         titleBar.add(connectButton, BorderLayout.EAST);
         
@@ -53,16 +64,14 @@ public class ShootingStarPanel extends PluginPanel
         titleBar.add(title, BorderLayout.WEST);
 
         headerView = new HeaderView();
-
-        JPanel topContainer = new JPanel(new BorderLayout());
-        topContainer.add(titleBar, BorderLayout.NORTH);
-        topContainer.add(headerView, BorderLayout.SOUTH);
-
-        add(topContainer, BorderLayout.NORTH);
+        
+        // Add components directly to the PluginPanel (uses DynamicGridLayout)
+        add(titleBar);
+        add(headerView);
 
         // Secondary view (encapsulates toggle + cards)
         secondaryViewPanel = new SecondaryViewPanel();
-        add(secondaryViewPanel, BorderLayout.CENTER);
+        add(secondaryViewPanel);
     }
 
     /**
@@ -71,11 +80,12 @@ public class ShootingStarPanel extends PluginPanel
      */
     public void setWebSocketManager(WebSocketManager webSocketManager)
     {
-        ConnectButtonListener listener = new ConnectButtonListener(connectButton, webSocketManager);
+        this.webSocketManager = webSocketManager;
+        ConnectButtonListener listener = new ConnectButtonListener(this, connectButton);
         connectButton.addActionListener(listener);
         
         // Set up action callback for current stars buttons
-        StarMenuActionCallback starMenuListener = new StarMenuActionCallback(this, webSocketManager, starDataService);
+        StarMenuActionCallback starMenuListener = new StarMenuActionCallback(this);
         getCurrentStarsView().setActionCallback(starMenuListener::handleStarAction);
     }
 
