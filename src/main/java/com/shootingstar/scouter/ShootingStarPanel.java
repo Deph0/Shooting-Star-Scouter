@@ -4,16 +4,18 @@ import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 
 import com.shootingstar.scouter.listeners.ConnectButtonListener;
+import com.shootingstar.scouter.listeners.StarMenuActionCallback;
+import com.shootingstar.scouter.models.StarData;
 import com.shootingstar.scouter.views.CurrentStarsCard;
-import com.shootingstar.scouter.views.CurrentStarsCard.StarData;
+import com.shootingstar.scouter.services.StarDataService;
 import com.shootingstar.scouter.views.HeaderView;
 import com.shootingstar.scouter.views.SecondaryViewPanel;
 import com.shootingstar.scouter.views.WaveTimersCard;
-import com.shootingstar.scouter.websocket.MessageBuilder;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 
 import lombok.Getter;
 
+import javax.inject.Inject;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -21,17 +23,16 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 public class ShootingStarPanel extends PluginPanel
 {
     @Getter private final HeaderView headerView;
     private final SecondaryViewPanel secondaryViewPanel;
     private final JButton connectButton;
-    @Getter private final Map<String, StarData> starDataCache = new HashMap<>();
+    @Inject private StarDataService starDataService;
 
-    public ShootingStarPanel(ShootingStarScouterConfig config)
+    public ShootingStarPanel()
     {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -65,7 +66,7 @@ public class ShootingStarPanel extends PluginPanel
     }
 
     /**
-     * Initialize WebSocket manager and connect button listener.
+     * Initialize WebSocket manager and button listener.
      * Must be called after panel construction.
      */
     public void setWebSocketManager(WebSocketManager webSocketManager)
@@ -74,76 +75,8 @@ public class ShootingStarPanel extends PluginPanel
         connectButton.addActionListener(listener);
         
         // Set up action callback for current stars buttons
-        getCurrentStarsView().setActionCallback((world, action) -> {
-            handleStarAction(world, action, webSocketManager);
-        });
-    }
-    
-    /**
-     * Handle action button clicks from the current stars table
-     */
-    private void handleStarAction(String world, CurrentStarsCard.StarAction action, WebSocketManager webSocketManager)
-    {
-        switch (action) {
-            case REMOVE:
-                String removeMessage = MessageBuilder.buildStarRemove(world);
-                webSocketManager.sendMessage(removeMessage);
-                starDataCache.remove(world); // Remove from cache
-                break;
-                
-            case TOGGLE_BACKUP:
-                StarData currentStar = starDataCache.get(world);
-                if (currentStar != null) {
-                    // Toggle backup status
-                    boolean newBackupStatus = !currentStar.isBackup();
-                    String updateMessage = MessageBuilder.buildStarUpdate(
-                        currentStar.getWorld(),
-                        currentStar.getTier(),
-                        currentStar.getLocation(),
-                        newBackupStatus,
-                        currentStar.getFoundBy(),
-                        currentStar.getFirstFound()
-                    );
-                    webSocketManager.sendMessage(updateMessage);
-                    
-                    // Update cache
-                    starDataCache.put(world, new StarData(
-                        currentStar.getWorld(),
-                        currentStar.getLocation(),
-                        currentStar.getTier(),
-                        newBackupStatus,
-                        currentStar.getFirstFound(),
-                        currentStar.getFoundBy()
-                    ));
-                }
-                break;
-                
-            case EDIT:
-                showEditStarDialog(world, webSocketManager);
-                break;
-        }
-    }
-    
-    /**
-     * Update the star data cache when stars are synced
-     */
-    public void updateStarDataCache(java.util.List<StarData> stars)
-    {
-        starDataCache.clear();
-        for (StarData star : stars) {
-            starDataCache.put(star.getWorld(), star);
-        }
-    }
-    
-    /**
-     * Show dialog to edit star details
-     */
-    private void showEditStarDialog(String world, WebSocketManager webSocketManager)
-    {
-        // TODO: Create a proper edit dialog with fields for world, tier, location, backup
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Edit star dialog for world " + world + "\n(Advanced feature - to be implemented)",
-            "Edit Star", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        StarMenuActionCallback starMenuListener = new StarMenuActionCallback(this, webSocketManager, starDataService);
+        getCurrentStarsView().setActionCallback(starMenuListener::handleStarAction);
     }
 
     public CurrentStarsCard getCurrentStarsView()
@@ -154,5 +87,11 @@ public class ShootingStarPanel extends PluginPanel
     public WaveTimersCard getWaveTimersView()
     {
         return secondaryViewPanel.getTimersCard();
+    }
+
+    public void refreshStars()
+    {
+        List<StarData> stars = new ArrayList<>(starDataService.getAllStars().values());
+        getCurrentStarsView().updateStars(stars);
     }
 }

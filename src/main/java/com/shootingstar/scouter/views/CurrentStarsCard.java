@@ -7,8 +7,12 @@ import net.runelite.client.ui.FontManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
+
+import com.shootingstar.scouter.models.StarActionType;
+import com.shootingstar.scouter.models.StarData;
 
 import java.awt.*;
 import java.time.Instant;
@@ -16,20 +20,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.function.BiConsumer;
+import java.util.List;
 
 @Slf4j
 public class CurrentStarsCard extends JPanel
 {
     private final JTable table;
     private final DefaultTableModel tableModel;
-    private BiConsumer<String, StarAction> actionCallback;
-
-    public enum StarAction
-    {
-        REMOVE,
-        TOGGLE_BACKUP,
-        EDIT
-    }
+    private BiConsumer<String, StarActionType> actionCallback;
 
     public CurrentStarsCard()
     {
@@ -129,8 +127,6 @@ public class CurrentStarsCard extends JPanel
         // Create custom row sorter
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         sorter.setComparator(3, (a, b) -> {
-            assert a instanceof StarData;
-            assert b instanceof StarData;
             StarData starA = (StarData) a;
             StarData starB = (StarData) b;
             return Boolean.compare(starA.isBackup(), starB.isBackup());
@@ -140,12 +136,6 @@ public class CurrentStarsCard extends JPanel
         // Set initial sorting by World column (index 0) in ascending order
         sorter.setSortKeys(Collections.singletonList(
             new RowSorter.SortKey(0, SortOrder.ASCENDING)));
-        
-        // Wrap in scroll pane
-        // JScrollPane scrollPane = new JScrollPane(starsTable);
-        // scrollPane.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        // scrollPane.getViewport().setBackground(ColorScheme.DARK_GRAY_COLOR);
-        // add(scrollPane, BorderLayout.CENTER);
 
         add(table.getTableHeader());
         add(table);
@@ -154,7 +144,7 @@ public class CurrentStarsCard extends JPanel
     /**
      * Set callback for when action buttons are clicked
      */
-    public void setActionCallback(BiConsumer<String, StarAction> callback)
+    public void setActionCallback(BiConsumer<String, StarActionType> callback)
     {
         this.actionCallback = callback;
     }
@@ -162,7 +152,7 @@ public class CurrentStarsCard extends JPanel
     /**
      * Update the stars table with new data
      */
-    public void updateStars(java.util.List<StarData> stars)
+    public void updateStars(List<StarData> stars)
     {
         tableModel.setRowCount(0);
         
@@ -175,47 +165,6 @@ public class CurrentStarsCard extends JPanel
             };
             tableModel.addRow(row);
         }
-        
-        // Debug: Print column widths
-        log.debug("Table column widths - World: {} (max: {}), Location: {} (max: {}), Tier: {} (max: {}), Actions: {} (max: {})",
-            table.getColumnModel().getColumn(0).getWidth(),
-            table.getColumnModel().getColumn(0).getMaxWidth(),
-            table.getColumnModel().getColumn(1).getWidth(),
-            table.getColumnModel().getColumn(1).getMaxWidth(),
-            table.getColumnModel().getColumn(2).getWidth(),
-            table.getColumnModel().getColumn(2).getMaxWidth(),
-            table.getColumnModel().getColumn(3).getWidth(),
-            table.getColumnModel().getColumn(3).getMaxWidth());
-    }
-
-    /**
-     * Data class for star information
-     */
-    public static class StarData
-    {
-        private final String world;
-        private final String location;
-        private final int tier;
-        private final boolean backup;
-        private final String firstFound;
-        private final String foundBy;
-
-        public StarData(String world, String location, int tier, boolean backup, String firstFound, String foundBy)
-        {
-            this.world = world;
-            this.location = location;
-            this.tier = tier;
-            this.backup = backup;
-            this.firstFound = firstFound;
-            this.foundBy = foundBy;
-        }
-
-        public String getWorld() { return world; }
-        public String getLocation() { return location; }
-        public int getTier() { return tier; }
-        public boolean isBackup() { return backup; }
-        public String getFirstFound() { return firstFound; }
-        public String getFoundBy() { return foundBy; }
     }
 
     /**
@@ -252,7 +201,7 @@ public class CurrentStarsCard extends JPanel
     /**
      * Editor for info button in actions column
      */
-    private class ButtonPanelEditor extends AbstractCellEditor implements javax.swing.table.TableCellEditor
+    private class ButtonPanelEditor extends AbstractCellEditor implements TableCellEditor
     {
         private final JPanel panel;
         private final JButton infoButton;
@@ -346,7 +295,7 @@ public class CurrentStarsCard extends JPanel
             backupItem.setForeground(star.isBackup() ? Color.ORANGE : Color.WHITE);
             backupItem.addActionListener(ev -> {
                 if (actionCallback != null) {
-                    actionCallback.accept(star.getWorld(), StarAction.TOGGLE_BACKUP);
+                    actionCallback.accept(star.getWorld(), StarActionType.TOGGLE_BACKUP);
                 }
             });
             menu.add(backupItem);
@@ -358,7 +307,7 @@ public class CurrentStarsCard extends JPanel
             editItem.setForeground(Color.WHITE);
             editItem.addActionListener(ev -> {
                 if (actionCallback != null) {
-                    actionCallback.accept(star.getWorld(), StarAction.EDIT);
+                    actionCallback.accept(star.getWorld(), StarActionType.EDIT);
                 }
             });
             menu.add(editItem);
@@ -372,7 +321,7 @@ public class CurrentStarsCard extends JPanel
             removeItem.setForeground(Color.RED);
             removeItem.addActionListener(ev -> {
                 if (actionCallback != null) {
-                    actionCallback.accept(star.getWorld(), StarAction.REMOVE);
+                    actionCallback.accept(star.getWorld(), StarActionType.REMOVE);
                 }
             });
             menu.add(removeItem);
@@ -388,8 +337,8 @@ public class CurrentStarsCard extends JPanel
     {
         JButton button = new JButton(icon);
         button.setToolTipText(tooltip);
-        button.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 11)); // Smaller font
-        button.setPreferredSize(new Dimension(26, 20)); // Smaller button
+        button.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 11));
+        button.setPreferredSize(new Dimension(26, 20));
         button.setMargin(new Insets(1, 1, 1, 1));
         button.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         button.setForeground(Color.WHITE);

@@ -3,8 +3,10 @@ package com.shootingstar.scouter.websocket.handlers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.shootingstar.scouter.ShootingStarPanel;
-import com.shootingstar.scouter.views.CurrentStarsCard.StarData;
+import com.shootingstar.scouter.models.StarData;
+import com.shootingstar.scouter.services.StarDataService;
 
+import javax.inject.Inject;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Map;
 public class StarSyncHandler implements IMessageHandler
 {
     private final ShootingStarPanel panel;
+    @Inject private StarDataService starDataService;
 
     public StarSyncHandler(ShootingStarPanel panel)
     {
@@ -43,27 +46,27 @@ public class StarSyncHandler implements IMessageHandler
         // Only update UI if there are changes
         if (hasChanges(starList)) {
             SwingUtilities.invokeLater(() -> {
-                panel.updateStarDataCache(starList);
-                panel.getCurrentStarsView().updateStars(starList);
+                starDataService.updateAll(starList);
+                panel.refreshStars();
             });
         }
     }
     
     /**
-     * Check if the new star list differs from the current cache
+     * Check if the new star list differs from the current data
      */
     private boolean hasChanges(List<StarData> newStars)
     {
-        Map<String, StarData> currentCache = panel.getStarDataCache();
+        Map<String, StarData> currentStars = starDataService.getAllStars();
         
         // Different size means changes
-        if (newStars.size() != currentCache.size()) {
+        if (newStars.size() != currentStars.size()) {
             return true;
         }
         
         // Check each star for differences
         for (StarData newStar : newStars) {
-            StarData cached = currentCache.get(newStar.getWorld());
+            StarData cached = currentStars.get(newStar.getWorld());
             
             if (cached == null) {
                 return true; // New star added

@@ -2,6 +2,8 @@ package com.shootingstar.scouter;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
+import javax.swing.SwingUtilities;
+
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -16,6 +18,8 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 
+import com.shootingstar.scouter.models.StarData;
+import com.shootingstar.scouter.services.StarDataService;
 import com.shootingstar.scouter.websocket.MessageBuilder;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 
@@ -40,6 +44,9 @@ public class ShootingStarScouterPlugin extends Plugin
 	@Inject
 	private ClientToolbar clientToolbar;
 
+	@Inject
+	private StarDataService starDataService;
+
 	private NavigationButton navButton;
 	private ShootingStarPanel panel;
 	private WebSocketManager webSocketManager;
@@ -50,7 +57,7 @@ public class ShootingStarScouterPlugin extends Plugin
 		log.info("Shooting Star Scouter started!");
 
 		try {
-			panel = new ShootingStarPanel(config);
+			panel = new ShootingStarPanel();
 			webSocketManager = new WebSocketManager(config.websocketUrl(), panel);			
 			panel.setWebSocketManager(webSocketManager);
 
@@ -231,7 +238,7 @@ public class ShootingStarScouterPlugin extends Plugin
 			"Ardougne", "Yanille", "Piscatoris", "Fossil Island"
 		};
 		
-		List<com.shootingstar.scouter.views.CurrentStarsCard.StarData> mockStars = new ArrayList<>();
+		List<StarData> mockStars = new ArrayList<>();
 		
 		for (int i = 0; i < count; i++)
 		{
@@ -246,15 +253,15 @@ public class ShootingStarScouterPlugin extends Plugin
 			long randomOffset = random.nextInt(7200000); // 0-2 hours in milliseconds
 			String firstFound = Instant.ofEpochMilli(nowMillis - randomOffset).toString();
 			
-			mockStars.add(new com.shootingstar.scouter.views.CurrentStarsCard.StarData(
+			mockStars.add(new StarData(
 				world, location, tier, backup, firstFound, foundBy
 			));
 		}
 		
 		// Update the UI with mock data
-		javax.swing.SwingUtilities.invokeLater(() -> {
-			panel.updateStarDataCache(mockStars);
-			panel.getCurrentStarsView().updateStars(mockStars);
+		SwingUtilities.invokeLater(() -> {
+			starDataService.updateAll(mockStars);
+			panel.refreshStars();
 		});
 		
 		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", 
@@ -265,8 +272,8 @@ public class ShootingStarScouterPlugin extends Plugin
 	{
 		// Clear all stars from the UI
 		javax.swing.SwingUtilities.invokeLater(() -> {
-			panel.updateStarDataCache(new ArrayList<>());
-			panel.getCurrentStarsView().updateStars(new ArrayList<>());
+			starDataService.clearAll();
+			panel.refreshStars();
 		});
 		
 		client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", 
