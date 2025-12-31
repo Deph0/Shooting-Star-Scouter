@@ -4,12 +4,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import net.runelite.client.ui.ColorScheme;
+import net.runelite.client.ui.PluginPanel;
 import lombok.Getter;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
-public class SecondaryViewPanel extends JPanel
+public class SecondaryViewPanel extends PluginPanel
 {
     private final CardLayout cardLayout;
     private final JPanel cardPanel;
@@ -20,16 +22,20 @@ public class SecondaryViewPanel extends JPanel
 
     public SecondaryViewPanel()
     {
+        super(false);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+        setBackground(ColorScheme.DARK_GRAY_COLOR);
 
         toggleButton = new JButton("Show Spawn Timers");
+        toggleButton.setFocusPainted(false);
 
         toggleButton.addActionListener(e -> toggleViewBtn());
         add(toggleButton, BorderLayout.NORTH);
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
+        cardPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
         starsCard = new CurrentStarsCard();
         timersCard = new WaveTimersCard();

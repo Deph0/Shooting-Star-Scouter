@@ -3,6 +3,7 @@ package com.shootingstar.scouter.views;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
+import net.runelite.client.ui.PluginPanel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -23,7 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.List;
 
 @Slf4j
-public class CurrentStarsCard extends JPanel
+public class CurrentStarsCard extends PluginPanel
 {
     private final JTable table;
     private final DefaultTableModel tableModel;
@@ -31,6 +32,7 @@ public class CurrentStarsCard extends JPanel
 
     public CurrentStarsCard()
     {
+        super(false);
         // setLayout(new BorderLayout());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

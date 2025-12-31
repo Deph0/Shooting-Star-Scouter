@@ -2,6 +2,7 @@ package com.shootingstar.scouter.views;
 
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
+import net.runelite.client.ui.PluginPanel;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -13,7 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 
-public class HeaderView extends JPanel
+public class HeaderView extends PluginPanel
 {
     @Getter private final JLabel waveBeganLabel;
     @Getter private final JLabel waveEndsLabel;
@@ -22,6 +23,7 @@ public class HeaderView extends JPanel
 
     public HeaderView()
     {
+        super(false);
         // Stack labels vertically: 4 rows, 1 column, small horizontal and vertical gap
         setLayout(new GridLayout(4, 1, 1, 4));
 
@@ -37,21 +39,25 @@ public class HeaderView extends JPanel
         
         waveBeganLabel = new JLabel("Wave began: N/A");
         waveBeganLabel.setFont(FontManager.getRunescapeSmallFont());
+        waveBeganLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         waveBeganLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         waveBeganLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 
         waveEndsLabel = new JLabel("Wave ends in: N/A");
         waveEndsLabel.setFont(FontManager.getRunescapeSmallFont());
+        waveEndsLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         waveEndsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         waveEndsLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 
         timeToScoutLabel = new JLabel("Start Scouting in: N/A");
         timeToScoutLabel.setFont(FontManager.getRunescapeSmallFont());
+        timeToScoutLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         timeToScoutLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         timeToScoutLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 
         spawnPhaseEndsLabel = new JLabel("Spawn phase ends: N/A");
         spawnPhaseEndsLabel.setFont(FontManager.getRunescapeSmallFont());
+        spawnPhaseEndsLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
         spawnPhaseEndsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         spawnPhaseEndsLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 

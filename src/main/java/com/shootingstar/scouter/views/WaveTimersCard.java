@@ -2,8 +2,8 @@ package com.shootingstar.scouter.views;
 
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
+import net.runelite.client.ui.PluginPanel;
 
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -16,13 +16,14 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import java.util.Collections;
 
-public class WaveTimersCard extends JPanel
+public class WaveTimersCard extends PluginPanel
 {
     private final JTable table;
     @Getter private final DefaultTableModel tableModel;
 
     public WaveTimersCard()
     {
+        super(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         setBackground(ColorScheme.DARK_GRAY_COLOR);
