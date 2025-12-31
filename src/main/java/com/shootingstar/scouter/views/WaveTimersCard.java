@@ -4,7 +4,6 @@ import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
@@ -61,12 +60,6 @@ public class WaveTimersCard extends JPanel
         // Set column widths
         table.getColumnModel().getColumn(0).setPreferredWidth(60);
         table.getColumnModel().getColumn(1).setPreferredWidth(90);
-
-        // Wrap in scroll pane
-        // JScrollPane scrollPane = new JScrollPane(table);
-        // scrollPane.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        // scrollPane.getViewport().setBackground(ColorScheme.DARK_GRAY_COLOR);
-        // add(scrollPane);
 
         add(table.getTableHeader());
         add(table);

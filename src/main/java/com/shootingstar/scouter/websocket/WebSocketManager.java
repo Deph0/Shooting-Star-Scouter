@@ -1,15 +1,17 @@
 package com.shootingstar.scouter.websocket;
 
 import com.shootingstar.scouter.ShootingStarPanel;
+import com.shootingstar.scouter.services.StarDataService;
 import com.shootingstar.scouter.websocket.handlers.DashboardUpdateHandler;
 import com.shootingstar.scouter.websocket.handlers.StarSyncHandler;
+
+import lombok.extern.slf4j.Slf4j;
+
 import com.shootingstar.scouter.websocket.handlers.SpawnTimesHandler;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -20,10 +22,9 @@ import java.util.function.Consumer;
  * Manages WebSocket connection state and message dispatching.
  * Central coordinator between UI and WebSocket communication.
  */
+@Slf4j
 public class WebSocketManager
-{
-    private static final Logger log = LoggerFactory.getLogger(WebSocketManager.class);
-    
+{    
     private final String serverUrl;
     private WebSocketClient webSocketClient;
     private final MessageDispatcher messageDispatcher;
@@ -52,8 +53,6 @@ public class WebSocketManager
         messageDispatcher.registerHandler(MSG_TYPE_DASHBOARD_UPDATE, new DashboardUpdateHandler(panel));
         messageDispatcher.registerHandler(MSG_TYPE_SPAWN_TIMES, new SpawnTimesHandler(panel.getWaveTimersView()));
         messageDispatcher.registerHandler(MSG_TYPE_STAR_SYNC, new StarSyncHandler(panel));
-        // messageDispatcher.registerHandler(MSG_TYPE_STAR_UPDATE, null); // Sending only
-        // messageDispatcher.registerHandler(MSG_TYPE_STAR_REMOVE, null); // Sending only
     }
 
     /**
@@ -105,7 +104,7 @@ public class WebSocketManager
                 {
                     log.info("WebSocket closed - Code: {}, Reason: {}, Remote: {}", code, reason, remote);
                     
-                    if (code == 1000) { // Normal closure
+                    if (code == CloseFrame.NORMAL) {
                         notifyStateChange(ConnectionState.DISCONNECTED);
                     } else {
                         notifyStateChange(ConnectionState.ERROR);
@@ -178,7 +177,7 @@ public class WebSocketManager
             {
                 try
                 {
-                    webSocketClient.close();
+                    webSocketClient.close(CloseFrame.ABNORMAL_CLOSE, "Closing broken connection");
                 }
                 catch (Exception closeEx)
                 {

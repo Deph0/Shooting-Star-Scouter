@@ -3,11 +3,10 @@ package com.shootingstar.scouter.listeners;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 import com.shootingstar.scouter.websocket.WebSocketManager.ConnectionState;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -17,9 +16,9 @@ import java.awt.event.ActionListener;
  * Handles connect/disconnect button actions.
  * Delegates to WebSocketManager for actual connection management.
  */
+@Slf4j
 public class ConnectButtonListener implements ActionListener
 {
-    private static final Logger log = LoggerFactory.getLogger(ConnectButtonListener.class);
     private final JButton connectButton;
     private final WebSocketManager webSocketManager;
 

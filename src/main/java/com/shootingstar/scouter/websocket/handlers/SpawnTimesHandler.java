@@ -5,10 +5,10 @@ import com.google.gson.JsonObject;
 import com.shootingstar.scouter.models.WorldSpawnTime;
 import com.shootingstar.scouter.views.WaveTimersCard;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Slf4j
 public class SpawnTimesHandler implements IMessageHandler
 {
-    private static final Logger log = LoggerFactory.getLogger(SpawnTimesHandler.class);
     private final WaveTimersCard timersView;
 
     public SpawnTimesHandler(WaveTimersCard timersView)

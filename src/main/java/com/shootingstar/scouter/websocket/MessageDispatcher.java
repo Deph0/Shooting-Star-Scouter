@@ -5,15 +5,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.shootingstar.scouter.websocket.handlers.IMessageHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class MessageDispatcher
 {
-    private static final Logger log = LoggerFactory.getLogger(MessageDispatcher.class);
     private final Map<String, IMessageHandler> handlers;
     private static final JsonParser JSON_PARSER = new JsonParser();
 
