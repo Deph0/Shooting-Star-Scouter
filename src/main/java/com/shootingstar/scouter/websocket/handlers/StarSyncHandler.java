@@ -32,15 +32,8 @@ public class StarSyncHandler implements IMessageHandler
         
         for (int i = 0; i < stars.size(); i++) {
             JsonObject star = stars.get(i).getAsJsonObject();
-            
-            String world = star.has("world") ? star.get("world").getAsString() : "?";
-            String location = star.has("location") ? star.get("location").getAsString() : "Unknown";
-            int tier = star.has("tier") ? star.get("tier").getAsInt() : 0;
-            boolean backup = star.has("backup") && star.get("backup").getAsBoolean();
-            String firstFound = star.has("firstFound") ? star.get("firstFound").getAsString() : "";
-            String foundBy = star.has("foundBy") ? star.get("foundBy").getAsString() : "";
-            
-            starList.add(new StarData(world, location, tier, backup, firstFound, foundBy));
+            StarData starData = StarData.fromJson(star);            
+            starList.add(starData);
         }
         
         // Only update UI if there are changes

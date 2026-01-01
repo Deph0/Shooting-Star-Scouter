@@ -10,6 +10,9 @@ import com.shootingstar.scouter.services.StarDataService;
 import com.shootingstar.scouter.websocket.MessageBuilder;
 import com.shootingstar.scouter.websocket.WebSocketManager;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StarMenuActionCallback
 {
     private final ShootingStarPanel panel;
@@ -40,28 +43,17 @@ public class StarMenuActionCallback
                 
             case TOGGLE_BACKUP:
                 starDataService.getStar(world).ifPresent(currentStar -> {
+                    log.debug("Current star before toggle: {}", currentStar);
                     // Toggle backup status
                     boolean newBackupStatus = !currentStar.isBackup();
+                    
+                    StarData newStarData = currentStar.withBackup(newBackupStatus);
 
                     // Update cache
-                    starDataService.addOrUpdate(new StarData(
-                        currentStar.getWorld(),
-                        currentStar.getLocation(),
-                        currentStar.getTier(),
-                        newBackupStatus,
-                        currentStar.getFirstFound(),
-                        currentStar.getFoundBy()
-                    ));
+                    starDataService.addOrUpdate(newStarData);
 
                     // Send update to server
-                    String updateMessage = MessageBuilder.buildStarUpdate(
-                        currentStar.getWorld(),
-                        currentStar.getTier(),
-                        currentStar.getLocation(),
-                        newBackupStatus,
-                        currentStar.getFoundBy(),
-                        currentStar.getFirstFound()
-                    );
+                    String updateMessage = MessageBuilder.buildStarUpdate(newStarData);
                     webSocketManager.sendMessage(updateMessage);
 
                     panel.refreshStars();
