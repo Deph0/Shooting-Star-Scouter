@@ -82,10 +82,8 @@ public class StarDebugCommand implements IChatCommand
         }
         
         // Update the UI with mock data
-        SwingUtilities.invokeLater(() -> {
-            starDataService.updateAll(mockStars);
-            panel.refreshStars();
-        });
+        starDataService.updateAll(mockStars);
+        SwingUtilities.invokeLater(() -> panel.refreshStars());
         
         client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", 
             String.format("Star Scouter: Generated %d mock stars", count), null);

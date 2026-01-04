@@ -27,10 +27,8 @@ public class StarClearCommand implements IChatCommand
     @Override
     public void execute(String[] args)
     {
-        SwingUtilities.invokeLater(() -> {
-            starDataService.clearAll();
-            panel.refreshStars();
-        });
+        starDataService.clearAll();
+        SwingUtilities.invokeLater(() -> panel.refreshStars());
         
         client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", 
             "Star Scouter: Cleared all stars", null);

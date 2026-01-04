@@ -38,10 +38,8 @@ public class StarSyncHandler implements IMessageHandler
         
         // Only update UI if there are changes
         if (hasChanges(starList)) {
-            SwingUtilities.invokeLater(() -> {
-                starDataService.updateAll(starList);
-                panel.refreshStars();
-            });
+            starDataService.updateAll(starList);
+            SwingUtilities.invokeLater(() -> panel.refreshStars());
         }
     }
     

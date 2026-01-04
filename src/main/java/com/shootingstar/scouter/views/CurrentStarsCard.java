@@ -156,6 +156,7 @@ public class CurrentStarsCard extends PluginPanel
      */
     public void updateStars(List<StarData> stars)
     {
+        // Clear existing rows
         tableModel.setRowCount(0);
         
         for (StarData star : stars) {
