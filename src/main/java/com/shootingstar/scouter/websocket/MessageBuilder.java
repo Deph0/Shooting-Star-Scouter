@@ -6,6 +6,9 @@ import com.shootingstar.scouter.models.StarData;
 /**
  * Builds JSON messages for WebSocket communication.
  * Centralizes message format and structure.
+ *
+ * The message structure assumes a common format used by the starhunt-ws-server:
+ * {@url https://github.com/luisr96/starhunt-ws-server/}
  */
 public class MessageBuilder
 {
@@ -18,7 +21,7 @@ public class MessageBuilder
     {
        JsonObject message = new JsonObject();
         message.addProperty("type", WebSocketManager.MSG_TYPE_STAR_UPDATE);
-        JsonObject data = starData.toJson();
+        JsonObject data = starData.toJsonObject();
         message.add("data", data);
         return message.toString();
     }

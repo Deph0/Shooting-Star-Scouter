@@ -1,18 +1,20 @@
 package com.shootingstar.scouter.models;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 
 import lombok.Data;
 
 public @Data class StarData
 {
-    private final String world;
-    private final String location;
-    private final String locationAlias;
-    private final int tier;
-    private final boolean backup;
-    private final String firstFound;
-    private final String foundBy;
+    @SerializedName("world") private final String world;
+    @SerializedName("location") private final String location;
+    @SerializedName("locationAlias") private final String locationAlias;
+    @SerializedName("tier") private final int tier;
+    @SerializedName("backup") private final boolean backup;
+    @SerializedName("firstFound") private final String firstFound;
+    @SerializedName("foundBy") private final String foundBy;
 
     public StarData withUpdates(String world, String location, String locationAlias, int tier, boolean backup, String firstFound, String foundBy)
     {
@@ -42,30 +44,12 @@ public @Data class StarData
         return new StarData(this.world, this.location, this.locationAlias, this.tier, backup, this.firstFound, this.foundBy);
     }
     
-    public static StarData fromJson(JsonObject json)
+    public static StarData fromJsonObject(JsonObject json)
     {
-        String world = json.has("world") ? json.get("world").getAsString() : null;
-        String location = json.has("location") ? json.get("location").getAsString() : null;
-        String locationAlias = json.has("locationAlias") ? json.get("locationAlias").getAsString() : null;
-        int tier = json.has("tier") ? json.get("tier").getAsInt() : -1;
-        boolean backup = json.has("backup") && json.get("backup").getAsBoolean();
-        String firstFound = json.has("firstFound") ? json.get("firstFound").getAsString() : null;
-        String foundBy = json.has("foundBy") ? json.get("foundBy").getAsString() : null;
-        
-        return new StarData(world, location, locationAlias, tier, backup, firstFound, foundBy);
+        return new Gson().fromJson(json, StarData.class);
     }
 
-    public JsonObject toJson()
-    {
-        JsonObject json = new JsonObject();
-        if (world != null) json.addProperty("world", world);
-        if (location != null) json.addProperty("location", location);
-        if (locationAlias != null) json.addProperty("locationAlias", locationAlias);
-        json.addProperty("tier", tier);
-        json.addProperty("backup", backup);
-        if (firstFound != null) json.addProperty("firstFound", firstFound);
-        if (foundBy != null) json.addProperty("foundBy", foundBy);
-        
-        return json;
+    public JsonObject toJsonObject() {
+        return new Gson().toJsonTree(this).getAsJsonObject();
     }
 }

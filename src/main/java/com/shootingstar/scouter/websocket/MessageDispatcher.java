@@ -10,6 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Dispatches incoming WebSocket messages to their respective handlers based on message type.
+ *
+ * The message structure assumes a common format used by the starhunt-ws-server:
+ * {@url https://github.com/luisr96/starhunt-ws-server/}
+ */
 @Slf4j
 public class MessageDispatcher
 {

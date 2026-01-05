@@ -32,7 +32,7 @@ public class StarSyncHandler implements IMessageHandler
         
         for (int i = 0; i < stars.size(); i++) {
             JsonObject star = stars.get(i).getAsJsonObject();
-            StarData starData = StarData.fromJson(star);            
+            StarData starData = StarData.fromJsonObject(star);
             starList.add(starData);
         }
         
